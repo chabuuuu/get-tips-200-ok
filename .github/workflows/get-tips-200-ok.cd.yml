@@ -5,7 +5,7 @@ env:
   DEPLOY_FOLDER: /home/gha-runner/get-tips-200-ok/backend
 
   # Đường dẫn file .env gốc nằm trên server (đã có sẵn)
-  ENV_FILE_PATH: /home/gha-runner/get-tips-200-ok/backend/.env
+  ENV_FILE_PATH: /home/gha-runner/get-tips-200-ok/backend/env_file/.env
 
   # Tên Image cơ bản (không bao gồm tag version để dễ tái sử dụng)
   BASE_IMAGE_NAME: get-tips-200-ok-backend
