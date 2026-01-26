@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  get-tips-200-ok-backend:
+    image: get-tips-200-ok-backend:${IMAGE_VERSION}
+    ports:
+      - "127.0.0.1:9098:8085"
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 300M
+
+        reservations:
+          cpus: "0.1"
+          memory: 156M
