@@ -22,7 +22,7 @@ env:
 on:
   push:
     branches:
-      - staging
+      - release
     paths:
       - "backend/**"
       - ".github/workflows/get-tips-200-ok.cd.yml"
