@@ -74,6 +74,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
           source: "./${{ env.SERVICE_FOLDER }}/docker-compose.yml"
           target: ${{ env.DEPLOY_FOLDER }}
 
