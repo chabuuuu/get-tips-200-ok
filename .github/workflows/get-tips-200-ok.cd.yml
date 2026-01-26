@@ -2,7 +2,7 @@ name: "[STAGING] CI & CD GET TIPS 200 OK [BE]"
 
 env:
   # Thư mục chứa code deploy trên server
-  DEPLOY_FOLDER: /home/gha-runner/get-tips-200-ok/backend
+  DEPLOY_FOLDER: /home/gha-runner/get-tips-200-ok/backend/source
 
   # Đường dẫn file .env gốc nằm trên server (đã có sẵn)
   ENV_FILE_PATH: /home/gha-runner/get-tips-200-ok/backend/env_file/.env
