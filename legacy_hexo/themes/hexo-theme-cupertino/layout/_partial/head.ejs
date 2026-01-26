@@ -1,0 +1,148 @@
+<head<% if (theme.og_enabled) { %> prefix="og: https://ogp.me/ns#"<% } %>>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="4c8feb26bf93e2c3533cfa69b8e917c6524c2336" content="4c8feb26bf93e2c3533cfa69b8e917c6524c2336" />
+    <!-- Google inxex -->
+    <meta name="google-site-verification" content="ggFHuyEQZ8B4HPDcs8xd3eeGcmk0OjLs2RL4Eel8N9U" />
+
+    <style type="text/css">
+      .mobileShow {
+        display: none;
+      }
+
+      /* Smartphone Portrait and Landscape */
+      @media only screen and (min-device-width : 200px) and (max-device-width : 480px) {
+        .mobileShow {
+          display: inline;
+        }
+      }
+
+      .mobileHide {
+        display: inline;
+      }
+
+      /* Smartphone Portrait and Landscape */
+      @media only screen and (min-device-width : 200px) and (max-device-width : 480px) {
+        .mobileHide {
+          display: none;
+        }
+      }
+    </style>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3674594999500784"
+      crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+
+    <!-- and it's easy to individually load additional languages -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/shell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <style>
+      .hljs {
+        font-family: 'Monaco', monospace;
+        ;
+        font-size: 16px;
+        /* Thay đổi giá trị này theo mong muốn của bạn */
+        font-weight: normal;
+      }
+    </style>
+    <script>
+
+      hljs.highlightAll();</script>
+
+    <!-- Chèn một đống quảng cáo -->
+    <% var title=page.title; if (is_archive()){ title=__('archives'); if (is_month()){ title +=': ' + page.year + '/' +
+      page.month; } else if (is_year()){ title +=': ' + page.year; } } else if (is_category()){ title=__('category')
+      + ': ' + page.category; } else if (is_tag()){ if (theme.hashtag_prefix_before_tags) { title='#' + page.tag; } else
+      { title=__('tag') + ': ' + page.tag; } } else if (theme.search==true && page.type=='search' ) { title=__('search')
+      } else if (page.type=='tags' ) { title=__('tags'); } else if (page.type=='categories' ) { title=__('categories');
+      } %>
+      <title>
+        <% if (title){ %>
+          <%= title %> - <% } %>
+              <%= config.title %>
+      </title>
+      <% if (theme.favicon){ %>
+        <%- favicon_tag(theme.favicon) %>
+          <% } %>
+            <% if (theme.manifest) { %>
+              <link rel='manifest' href='<%= theme.manifest %>'>
+              <% } %>
+
+                <% if (theme.og_enabled) { %>
+                  <% var og={}; og['title']=(title ? title + ' - ' : '' ) + config.title; og['type']=is_post()
+                    ? 'article' : 'website' ; og['url']=url; og['image']=page.cover_image ? page.cover_image :
+                    theme.og_image; if (is_post()) { og['article:published_time']=page.date.toISOString();
+                    og['article:author']=config.author; } if (theme['og']) { for (const i in theme.og) {
+                    og[i]=theme.og[i]; } } if (page['og']) { for (const i in page.og) { og[i]=page.og[i]; } } %>
+                    <% for (const i in og) { %>
+                      <meta property="og:<%= i %>" content="<%= og[i] %>" />
+                      <% } %>
+                      <meta name="description" content="<%= page.description ? page.description : 'GET TIPS 200 OK: Trang blog chia sẻ tất tần tật mọi thứ tips về Backend, Devops, System Design,...'  %>" />
+                        <% } %>
+
+                          <%- css('css/var') %>
+                            <%- css('css/main') %>
+                              <%- css('css/typography') %>
+                                <%- css('css/code-highlighting') %>
+                                  <%- css('css/components') %>
+                                    <%- css('css/nav') %>
+                                      <%- css('css/paginator') %>
+                                        <%- css('css/footer') %>
+                                          <%- css('css/post-list') %>
+                                            <% if (theme.rainbow_banner) { %>
+                                              <%- css('css/rainbow-banner') %>
+                                                <% } %>
+                                                  <% if (theme.toc) { %>
+                                                    <%- css('css/toc') %>
+                                                      <% } %>
+                                                        <% if (config.giscus) { %>
+                                                          <%- css('css/giscus') %>
+                                                            <% } %>
+                                                              <% if (page.path=="index.html" ) { %>
+                                                                <%- css('css/index') %>
+                                                                  <% } %>
+                                                                    <% if (page.path !="index.html" ) { %>
+                                                                      <%- css('css/post') %>
+                                                                        <% } %>
+                                                                          <% if (is_archive() || is_category() ||
+                                                                            is_tag() || (theme.search==true &&
+                                                                            page.type=='search' ) || page.type=='tags'
+                                                                            || page.type=='categories' ) { %>
+                                                                            <%- css('css/archive') %>
+                                                                              <% } %>
+                                                                                <% if (theme.search==true &&
+                                                                                  page.type=='search' ) { %>
+                                                                                  <%- css('css/search') %>
+                                                                                    <% } %>
+                                                                                      <% if (page.type=='tags' ) { %>
+                                                                                        <%- css('css/tags') %>
+                                                                                          <% } %>
+                                                                                            <% if
+                                                                                              (page.type=='categories' )
+                                                                                              { %>
+                                                                                              <%- css('css/categories')
+                                                                                                %>
+                                                                                                <% } %>
+
+                                                                                                  <% if (config.waline)
+                                                                                                    { %>
+                                                                                                    <script
+                                                                                                      src='https://unpkg.com/@waline/client@v2/dist/waline.js'></script>
+                                                                                                    <link
+                                                                                                      rel="stylesheet"
+                                                                                                      href="https://unpkg.com/@waline/client@v2/dist/waline.css" />
+                                                                                                    <% } %>
+
+                                                                                                      <!-- <div
+                                                                                                        class="mobileHide">
+                                                                                                        <script
+                                                                                                          type='text/javascript'
+                                                                                                          src='//pl22705748.profitablegatecpm.com/4d/5f/55/4d5f55d7317e3d4bccd7ee1197ff9170.js'></script>
+                                                                                                      </div> -->
+
+                                                                                                      </head>
