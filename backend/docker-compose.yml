@@ -4,7 +4,7 @@ services:
   get-tips-200-ok-backend:
     image: get-tips-200-ok-backend:${IMAGE_VERSION}
     ports:
-      - "127.0.0.1:9098:8085"
+      - "127.0.0.1:9098:8080"
     env_file:
       - .env
     deploy:
