@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from 'react';
 import "./globals.css";
 import Link from "next/link";
 import { Github, Facebook, Youtube } from 'lucide-react';
@@ -53,7 +54,9 @@ export default function RootLayout({
                <a href="https://github.com/chabuuuu" target="_blank" rel="noreferrer" className="hover:text-white transition"><Github size={18} /></a>
                <a href="https://www.facebook.com/thinhha123" target="_blank" rel="noreferrer" className="hover:text-blue-500 transition"><Facebook size={18} /></a>
                <a href="https://www.youtube.com/@chabu4877" target="_blank" rel="noreferrer" className="hover:text-red-500 transition"><Youtube size={18} /></a>
-               <SearchInput />
+               <Suspense>
+                  <SearchInput />
+               </Suspense>
             </div>
           </div>
         </header>
