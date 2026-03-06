@@ -81,11 +81,12 @@ export default function ReactionButton({ postId, initialCounts = {} }: ReactionB
     const totalReactions = Object.values(counts).reduce((a, b) => a + b, 0);
 
     return (
-        <div className="relative group" onMouseLeave={() => setShowDock(false)}>
-            {/* Dock */}
+        <div className="relative inline-block group" onMouseLeave={() => setShowDock(false)}>
+            {/* Dock with invisible bridge */}
             <div 
-                className={`absolute bottom-full left-0 mb-2 bg-white dark:bg-[#222] border border-gray-200 dark:border-[#333] shadow-xl rounded-full p-2 flex gap-2 transition-all duration-300 transform origin-bottom-left ${showDock || 'group-hover:scale-100 group-hover:opacity-100 opacity-0 scale-75 pointer-events-none group-hover:pointer-events-auto'}`}
+                className={`absolute bottom-full left-0 pb-2 z-50 transition-all duration-300 transform origin-bottom-left ${showDock || 'group-hover:scale-100 group-hover:opacity-100 opacity-0 scale-75 pointer-events-none group-hover:pointer-events-auto'}`}
             >
+                <div className="bg-white dark:bg-[#222] border border-gray-200 dark:border-[#333] shadow-xl rounded-full p-2 flex gap-2">
                 {REACTION_TYPES.map((r) => (
                     <button
                         key={r.type}
@@ -103,6 +104,7 @@ export default function ReactionButton({ postId, initialCounts = {} }: ReactionB
                          {r.type === 'angry' && '😡'}
                     </button>
                 ))}
+                </div>
             </div>
 
             {/* Main Button */}

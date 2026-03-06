@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import PostContent from '@/components/PostContent';
 import ReactionButton from '@/components/Reactions/ReactionButton';
 import GiscusComments from '@/components/GiscusComments';
+import ScrollProgressBar from '@/components/ScrollProgressBar';
 
 async function getPost(slug: string) {
   try {
@@ -27,6 +28,7 @@ export default async function PostDetail({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#101010] text-gray-900 dark:text-gray-300 font-sans pb-20 transition-colors duration-300">
+      <ScrollProgressBar />
       {/* Header handled by RootLayout */}
 
       <main className="container mx-auto px-4 py-10 max-w-4xl">
@@ -43,6 +45,8 @@ export default async function PostDetail({ params }: { params: Promise<{ slug: s
                      <span>by Admin</span>
                      <span>•</span>
                      <span>{post.view_count} views</span>
+                     <span>•</span>
+                     <span>{Math.max(1, Math.ceil(post.content.split(/\s+/).length / 200))} min read</span>
                 </div>
                 
                 {/* Categories */}
