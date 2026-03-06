@@ -5,8 +5,10 @@ import "./globals.css";
 import Link from "next/link";
 import { Github, Facebook, Youtube } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
+import MobileMenu from '@/components/MobileMenu';
 import { SettingsProvider } from "@/context/SettingsContext";
 import FloatingSettings from "@/components/FloatingSettings";
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,12 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-gray-50 dark:bg-[#101010] text-gray-900 dark:text-gray-200 transition-colors duration-300`}>
+        <NextTopLoader color="#3b82f6" height={3} showSpinner={false} />
         <SettingsProvider>
         {/* Header */}
         <header className="bg-white dark:bg-[#181818] border-b border-gray-200 dark:border-[#222] text-sm transition-colors duration-300">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center space-x-8">
-              <Link href="/" className="text-gray-900 dark:text-white font-bold tracking-wider text-base uppercase hover:text-blue-500 dark:hover:text-blue-400 transition">
+              <Link href="/" className="text-gray-900 dark:text-white font-bold tracking-wider text-base uppercase hover:text-blue-500 dark:hover:text-blue-400 transition whitespace-nowrap shrink-0">
                 GET TIPS 200 OK
               </Link>
               
@@ -50,13 +53,16 @@ export default function RootLayout({
             </div>
 
             {/* Social & Search */}
-            <div className="flex items-center space-x-4 text-gray-400">
-               <a href="https://github.com/chabuuuu" target="_blank" rel="noreferrer" className="hover:text-white transition"><Github size={18} /></a>
-               <a href="https://www.facebook.com/thinhha123" target="_blank" rel="noreferrer" className="hover:text-blue-500 transition"><Facebook size={18} /></a>
-               <a href="https://www.youtube.com/@chabu4877" target="_blank" rel="noreferrer" className="hover:text-red-500 transition"><Youtube size={18} /></a>
+            <div className="flex items-center space-x-2 md:space-x-4 text-gray-400">
+               <div className="hidden md:flex items-center space-x-4">
+                   <a href="https://github.com/chabuuuu" target="_blank" rel="noreferrer" className="hover:text-white transition"><Github size={18} /></a>
+                   <a href="https://www.facebook.com/thinhha123" target="_blank" rel="noreferrer" className="hover:text-blue-500 transition"><Facebook size={18} /></a>
+                   <a href="https://www.youtube.com/@chabu4877" target="_blank" rel="noreferrer" className="hover:text-red-500 transition"><Youtube size={18} /></a>
+               </div>
                <Suspense>
                   <SearchInput />
                </Suspense>
+               <MobileMenu />
             </div>
           </div>
         </header>
@@ -95,19 +101,19 @@ export default function RootLayout({
                 <div>
                     <h3 className="text-white font-bold mb-4 uppercase tracking-wider">About</h3>
                     <div className="space-y-2">
-                        <p>This Blog</p>
-                        <p>GitHub</p>
-                        <p>Facebook</p>
-                        <p>Linkedin</p>
-                        <p>Portfolio</p>
-                        <p>Email</p>
-                        <p>Youtube</p>
+                        <p><Link href="/about">This Blog</Link></p>
+                        <p><Link href="https://github.com/chabuuuu">GitHub</Link></p>
+                        <p><Link href="https://www.facebook.com/thinhha123">Facebook</Link></p>
+                        <p><Link href="https://www.linkedin.com/in/thinhhaphu33/">Linkedin</Link></p>
+                        <p><Link href="https://haphuthinh.com">Portfolio</Link></p>
+                        <p><Link href="mailto:[haphuthinh332004@gmail.com]">Email</Link></p>
+                        <p><Link href="https://www.youtube.com/@chabu4877">Youtube</Link></p>
                     </div>
                 </div>
             </div>
 
             <div className="container mx-auto px-4 mt-16 pt-8 border-t border-[#1a1a1a] text-center text-xs text-gray-600">
-               <p>© 2025 haphuthinh</p>
+               <p>© 2026 haphuthinh</p>
                <p className="mt-2">Personal blog by <span className="text-blue-500">chabuuuu</span></p>
             </div>
         </footer>

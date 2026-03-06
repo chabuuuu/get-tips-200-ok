@@ -17,6 +17,7 @@
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.563.0",
     "next": "16.1.4",
+    "nextjs-toploader": "^3.9.17",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-froala-wysiwyg": "^5.0.0",

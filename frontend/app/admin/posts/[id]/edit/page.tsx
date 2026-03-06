@@ -112,8 +112,8 @@ export default function EditPost() {
   if (loading) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-8">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-4 md:p-8">
         <h1 className="text-2xl font-bold mb-6 text-gray-800">Edit Post</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
             <div>

@@ -61,11 +61,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
         </h2>
         
         {searchTerm ? (
-             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-gray-200 tracking-tight leading-none mb-4">
+             <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-gray-900 dark:text-gray-200 tracking-tight leading-none mb-4">
                 Results for: <span className="text-blue-500">"{searchTerm}"</span>
             </h1>
         ) : (
-             <h1 className="text-6xl md:text-8xl font-bold text-gray-900 dark:text-gray-200 tracking-tight leading-none mb-4">
+             <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold text-gray-900 dark:text-gray-200 tracking-tight leading-none mb-4">
                 Explore new <br /> stuffs
             </h1>
         )}

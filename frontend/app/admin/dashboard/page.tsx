@@ -40,25 +40,26 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-            <div className="space-x-4">
-                 <Link href="/admin/categories" className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition font-medium">
-                    Manage Categories
+            <div className="flex flex-wrap items-center gap-3">
+                 <Link href="/admin/categories" className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 md:px-6 md:py-2 rounded-lg transition font-medium text-sm md:text-base">
+                    Categories
                  </Link>
-                 <Link href="/admin/posts/create" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition font-medium">
+                 <Link href="/admin/posts/create" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 md:px-6 md:py-2 rounded-lg transition font-medium text-sm md:text-base">
                     + New Post
                  </Link>
-                 <button onClick={() => { localStorage.removeItem('token'); router.push('/admin/login'); }} className="text-red-500 font-medium hover:underline">
+                 <button onClick={() => { localStorage.removeItem('token'); router.push('/admin/login'); }} className="text-red-500 font-medium hover:underline text-sm md:text-base ml-auto md:ml-0">
                     Logout
                  </button>
             </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <table className="w-full text-left">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
                 <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 text-sm uppercase tracking-wider">
                     <tr>
                         <th className="px-6 py-4">Title</th>
@@ -91,6 +92,7 @@ export default function AdminDashboard() {
                     ))}
                 </tbody>
             </table>
+            </div>
             {posts.length === 0 && (
                 <div className="p-8 text-center text-gray-500">No posts found. Create one!</div>
             )}
