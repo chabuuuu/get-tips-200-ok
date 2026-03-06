@@ -53,7 +53,7 @@ export default function SearchInput() {
 
     return (
         <div className="relative flex items-center">
-             <div className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'w-48 md:w-64 opacity-100 mr-2' : 'w-0 opacity-0'}`}>
+             <div className={`flex items-center overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'w-32 sm:w-48 md:w-64 opacity-100 mr-2' : 'w-0 opacity-0'}`}>
                 <form onSubmit={handleSearch} className="w-full relative">
                     <input
                         ref={inputRef}
