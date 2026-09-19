@@ -86,103 +86,135 @@ export default function CreatePost() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-4 md:p-8">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Create New Post</h1>
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-                <label className="block text-gray-700 font-bold mb-2">Title</label>
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    placeholder="Enter post title"
-                    required
+    <div className="max-w-5xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            Viết Bài Mới
+          </h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Tạo và biên tập bài viết mới cho blog
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push('/admin/dashboard')}
+          className="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-850 transition"
+        >
+          &larr; Quay lại
+        </button>
+      </div>
+
+      <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-xl p-6 sm:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6 text-xs sm:text-sm">
+          <div>
+            <label className="block text-slate-300 font-semibold mb-2">
+              Tiêu đề bài viết <span className="text-rose-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none"
+              placeholder="Nhập tiêu đề bài viết..."
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-300 font-semibold mb-2">Đường dẫn (Slug)</label>
+            <input
+              type="text"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-400 font-mono focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none"
+              placeholder="auto-generated-slug"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-300 font-semibold mb-2">Ảnh bìa (Cover Image)</label>
+            <div className="flex items-center space-x-4">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="block w-full text-xs text-slate-400
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-xl file:border-0
+                  file:text-xs file:font-semibold
+                  file:bg-blue-600/20 file:text-blue-400
+                  hover:file:bg-blue-600/30 file:cursor-pointer"
+              />
+              {uploading && <span className="text-xs text-blue-400 shrink-0">Đang tải ảnh...</span>}
+            </div>
+            {coverImage && (
+              <div className="mt-3">
+                <img
+                  src={coverImage}
+                  alt="Cover Preview"
+                  className="h-40 w-auto object-cover rounded-xl border border-slate-800 shadow-md"
                 />
-            </div>
+              </div>
+            )}
+          </div>
 
-            <div>
-                <label className="block text-gray-700 font-bold mb-2">Slug</label>
-                <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50"
-                    placeholder="auto-generated-slug"
-                    required
-                />
-            </div>
-
-            <div>
-                 <label className="block text-gray-700 font-bold mb-2">Cover Image</label>
-                 <div className="flex items-center space-x-4">
-                     <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="block w-full text-sm text-gray-500
-                          file:mr-4 file:py-2 file:px-4
-                          file:rounded-full file:border-0
-                          file:text-sm file:font-semibold
-                          file:bg-blue-50 file:text-blue-700
-                          hover:file:bg-blue-100"
-                     />
-                     {uploading && <span className="text-sm text-blue-500">Uploading...</span>}
-                 </div>
-                 {coverImage && (
-                     <div className="mt-4">
-                         <img src={coverImage} alt="Cover Preview" className="h-40 w-auto object-cover rounded shadow-md" />
-                     </div>
-                 )}
-            </div>
-
-            <div>
-                 <label className="block text-gray-700 font-bold mb-2">Categories</label>
-                 <div className="flex flex-wrap gap-2">
-                     {categories.map((cat) => (
-                         <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() => toggleCategory(cat.id)}
-                            className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                                selectedCategories.includes(cat.id)
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                         >
-                             {cat.name}
-                         </button>
-                     ))}
-                 </div>
-            </div>
-
-            <div>
-                 <label className="block text-gray-700 font-bold mb-2">Content</label>
-                 <div className="prose max-w-none">
-                     <Editor model={content} onModelChange={setContent} />
-                 </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-                <input
-                    type="checkbox"
-                    id="publish"
-                    checked={isPublished}
-                    onChange={(e) => setIsPublished(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded"
-                />
-                <label htmlFor="publish" className="text-gray-700 select-none">Publish immediately</label>
-            </div>
-
-            <div className="flex space-x-4 pt-4">
-                <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-                    Create Post
+          <div>
+            <label className="block text-slate-300 font-semibold mb-2">Danh mục chuyên môn</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+                    selectedCategories.includes(cat.id)
+                      ? 'bg-blue-600 text-white font-semibold shadow-md shadow-blue-600/30'
+                      : 'bg-slate-850 text-slate-300 border border-slate-700/80 hover:bg-slate-800'
+                  }`}
+                >
+                  {cat.name}
                 </button>
-                <button type="button" onClick={() => router.back()} className="text-gray-600 px-6 py-2 hover:bg-gray-100 rounded-lg transition">
-                    Cancel
-                </button>
+              ))}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-slate-300 font-semibold mb-2">Nội dung bài viết</label>
+            <div className="bg-white rounded-xl overflow-hidden border border-slate-700/80">
+              <Editor model={content} onModelChange={setContent} />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-3 p-3 bg-slate-850 rounded-xl border border-slate-700/80">
+            <input
+              type="checkbox"
+              id="publish"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 cursor-pointer"
+            />
+            <label htmlFor="publish" className="text-slate-200 select-none cursor-pointer font-medium">
+              Xuất bản công khai ngay lập tức (Bỏ chọn nếu muốn lưu bản nháp)
+            </label>
+          </div>
+
+          <div className="flex items-center gap-3 pt-4 border-t border-slate-800">
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-blue-600/25 transition hover:scale-[1.02]"
+            >
+              Tạo bài viết
+            </button>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="text-slate-400 hover:text-white px-4 py-2.5 rounded-xl hover:bg-slate-800 transition"
+            >
+              Hủy bỏ
+            </button>
+          </div>
         </form>
       </div>
     </div>

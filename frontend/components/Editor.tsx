@@ -33,8 +33,12 @@ const Editor: React.FC<EditorProps> = ({ model, onModelChange }) => {
       model={model}
       onModelChange={onModelChange}
       config={{
-        placeholderText: 'Start writing...',
+        placeholderText: 'Bắt đầu viết nội dung bài viết...',
         charCounterCount: true,
+        heightMin: 500,
+        heightMax: 900,
+        toolbarSticky: true,
+        toolbarStickyOffset: 64,
         imageUploadURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/upload`,
         imageUploadMethod: 'POST',
         requestHeaders: {
