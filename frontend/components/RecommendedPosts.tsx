@@ -26,11 +26,13 @@ interface Post {
 interface RecommendedPostsProps {
   currentSlug: string;
   currentPostId?: number;
+  lang?: string;
 }
 
 export default function RecommendedPosts({
   currentSlug,
   currentPostId,
+  lang,
 }: RecommendedPostsProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,9 +41,11 @@ export default function RecommendedPosts({
     const fetchRecommendations = async () => {
       setLoading(true);
       try {
-        const res = await api.get(
-          `/posts/recommended?current_slug=${encodeURIComponent(currentSlug)}&limit=4`
-        );
+        let url = `/posts/recommended?current_slug=${encodeURIComponent(currentSlug)}&limit=4`;
+        if (lang) {
+          url += `&lang=${encodeURIComponent(lang)}`;
+        }
+        const res = await api.get(url);
         setPosts(res.data || []);
       } catch (err) {
         console.error("Failed to load recommended posts", err);
@@ -53,7 +57,7 @@ export default function RecommendedPosts({
     if (currentSlug) {
       fetchRecommendations();
     }
-  }, [currentSlug, currentPostId]);
+  }, [currentSlug, currentPostId, lang]);
 
   if (!loading && posts.length === 0) {
     return null;

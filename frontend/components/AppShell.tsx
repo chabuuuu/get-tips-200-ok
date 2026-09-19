@@ -7,6 +7,7 @@ import { Github, Facebook, Youtube } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
 import MobileMenu from '@/components/MobileMenu';
 import FloatingSettings from '@/components/FloatingSettings';
+import LanguageSelector from '@/components/LanguageSelector';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -56,6 +57,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <Youtube size={18} />
               </a>
             </div>
+            <Suspense>
+              <LanguageSelector variant="header" />
+            </Suspense>
             <Suspense>
               <SearchInput />
             </Suspense>

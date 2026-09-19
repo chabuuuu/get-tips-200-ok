@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SettingsProvider } from "@/context/SettingsContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import NextTopLoader from 'nextjs-toploader';
 import AppShell from "@/components/AppShell";
 import { SITE_NAME, SITE_URL, DEFAULT_DESCRIPTION, generateWebSiteJsonLd } from "@/utils/seo";
@@ -99,11 +100,13 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-gray-50 dark:bg-[#101010] text-gray-900 dark:text-gray-200 transition-colors duration-300`}>
         <NextTopLoader color="#3b82f6" height={3} showSpinner={false} />
-        <SettingsProvider>
-          <AppShell>
-            {children}
-          </AppShell>
-        </SettingsProvider>
+        <LanguageProvider>
+          <SettingsProvider>
+            <AppShell>
+              {children}
+            </AppShell>
+          </SettingsProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
