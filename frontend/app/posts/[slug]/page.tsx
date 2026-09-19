@@ -6,6 +6,7 @@ import ReactionButton from '@/components/Reactions/ReactionButton';
 import GiscusComments from '@/components/GiscusComments';
 import ScrollProgressBar from '@/components/ScrollProgressBar';
 import RecommendedPosts from '@/components/RecommendedPosts';
+import LanguageSelector from '@/components/LanguageSelector';
 import {
   SITE_NAME,
   SITE_URL,
@@ -15,12 +16,13 @@ import {
   generateBreadcrumbJsonLd,
 } from '@/utils/seo';
 
-async function getPost(slug: string) {
+async function getPost(slug: string, lang?: string) {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/posts/${slug}`,
-      { cache: 'no-store' }
-    );
+    let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/posts/${slug}`;
+    if (lang) {
+      url += `?lang=${encodeURIComponent(lang)}`;
+    }
+    const res = await fetch(url, { cache: 'no-store' });
 
     if (!res.ok) return null;
     return res.json();
@@ -31,11 +33,14 @@ async function getPost(slug: string) {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPost(slug);
+  const { lang } = await searchParams;
+  const post = await getPost(slug, lang);
 
   if (!post) {
     return {
@@ -46,8 +51,15 @@ export async function generateMetadata({
 
   const description = cleanDescription(post, 160);
   const imageUrl = resolveImageUrl(post.cover_image);
-  const postUrl = `/posts/${post.slug}`;
+  const postUrl = lang && lang !== 'vi' ? `/posts/${post.slug}?lang=${lang}` : `/posts/${post.slug}`;
   const keywords = post.categories?.map((c: any) => c.name) || [];
+
+  const availableLocales = post.available_locales || ['vi'];
+  const languageAlternates: Record<string, string> = {};
+  availableLocales.forEach((l: string) => {
+    languageAlternates[l] = l === 'vi' ? `/posts/${post.slug}` : `/posts/${post.slug}?lang=${l}`;
+  });
+  languageAlternates['x-default'] = `/posts/${post.slug}`;
 
   return {
     title: post.title,
@@ -55,13 +67,14 @@ export async function generateMetadata({
     keywords: keywords.length > 0 ? keywords : undefined,
     alternates: {
       canonical: postUrl,
+      languages: languageAlternates,
     },
     openGraph: {
       title: post.title,
       description: description,
       url: postUrl,
       siteName: SITE_NAME,
-      locale: 'vi_VN',
+      locale: post.active_locale === 'ja' ? 'ja_JP' : 'vi_VN',
       type: 'article',
       publishedTime: post.created_at,
       modifiedTime: post.updated_at || post.created_at,
@@ -87,11 +100,14 @@ export async function generateMetadata({
 
 export default async function PostDetail({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }) {
   const { slug } = await params;
-  const post = await getPost(slug);
+  const { lang } = await searchParams;
+  const post = await getPost(slug, lang);
 
   if (!post) {
     notFound();
@@ -156,28 +172,53 @@ export default async function PostDetail({
           </ol>
         </nav>
 
+        {/* Fallback Notice if Japanese requested but not translated yet */}
+        {lang === 'ja' && post.active_locale === 'vi' && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs sm:text-sm flex items-center space-x-2">
+            <span>ℹ️</span>
+            <span>
+              Bài viết này chưa có phiên bản tiếng Nhật. Đang hiển thị bản gốc bằng tiếng Việt.
+            </span>
+          </div>
+        )}
+
         <article className="bg-white dark:bg-[#181818] p-8 md:p-12 rounded-lg border border-gray-200 dark:border-[#222] shadow-sm dark:shadow-none transition-colors duration-300">
           <header className="mb-8 text-center border-b border-gray-200 dark:border-[#222] pb-8">
             <div className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-4">
               <time dateTime={post.created_at}>
-                {new Date(post.created_at).toLocaleDateString('vi-VN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                {new Date(post.created_at).toLocaleDateString(
+                  post.active_locale === 'ja' ? 'ja-JP' : 'vi-VN',
+                  {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }
+                )}
               </time>
             </div>
             <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
               {post.title}
             </h1>
             <div className="flex items-center justify-center space-x-4 md:space-x-6 text-gray-500 text-xs uppercase tracking-wide">
-              <span>Bởi GET TIPS 200 OK</span>
-              <span>•</span>
-              <span>{post.view_count || 0} lượt xem</span>
+              <span>{post.active_locale === 'ja' ? '著者: GET TIPS 200 OK' : 'Bởi GET TIPS 200 OK'}</span>
               <span>•</span>
               <span>
-                {Math.max(1, Math.ceil((post.content || '').split(/\s+/).length / 200))} phút đọc
+                {post.view_count || 0} {post.active_locale === 'ja' ? '回閲覧' : 'lượt xem'}
               </span>
+              <span>•</span>
+              <span>
+                {Math.max(1, Math.ceil((post.content || '').split(/\s+/).length / 200))}{' '}
+                {post.active_locale === 'ja' ? '分で読める' : 'phút đọc'}
+              </span>
+            </div>
+
+            {/* Language Switcher Bar on Article */}
+            <div className="flex justify-center mt-6">
+              <LanguageSelector
+                variant="post"
+                availableLocales={post.available_locales || ['vi']}
+                activeLocale={post.active_locale || 'vi'}
+              />
             </div>
 
             {/* Categories */}
@@ -214,7 +255,7 @@ export default async function PostDetail({
           </div>
 
           {/* Smart Recommended Posts Section */}
-          <RecommendedPosts currentSlug={post.slug} currentPostId={post.id} />
+          <RecommendedPosts currentSlug={post.slug} currentPostId={post.id} lang={post.active_locale} />
 
           {/* Comments Section */}
           <GiscusComments />
