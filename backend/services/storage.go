@@ -2,8 +2,10 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -19,6 +21,12 @@ func InitMinio() {
 	useSSL := os.Getenv("MINIO_USE_SSL") == "true"
 	BucketName = os.Getenv("MINIO_BUCKET")
 
+	if endpoint == "" {
+		log.Println("Warning: MINIO_ENDPOINT is not set. MinIO storage will be disabled.")
+		MinioClient = nil
+		return
+	}
+
 	// Initialize minio client object.
 	var err error
 	MinioClient, err = minio.New(endpoint, &minio.Options{
@@ -26,11 +34,15 @@ func InitMinio() {
 		Secure: useSSL,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		log.Printf("Warning: Failed to initialize MinIO client: %v. MinIO storage will be disabled.\n", err)
+		MinioClient = nil
+		return
 	}
 
-	// Make a new bucket called mymusic.
-	ctx := context.Background()
+	// Check or create bucket with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	err = MinioClient.MakeBucket(ctx, BucketName, minio.MakeBucketOptions{})
 	if err != nil {
 		// Check to see if we already own this bucket (which happens if it exists)
@@ -38,7 +50,9 @@ func InitMinio() {
 		if errBucketExists == nil && exists {
 			log.Printf("We already own %s\n", BucketName)
 		} else {
-			log.Fatalln(err)
+			log.Printf("Warning: MinIO connection/bucket check failed: %v. MinIO storage will be disabled, but server will continue running.\n", err)
+			MinioClient = nil
+			return
 		}
 	} else {
 		log.Printf("Successfully created %s\n", BucketName)
@@ -49,6 +63,10 @@ func InitMinio() {
 // Note: In production, might want to use Presigned URLs or proxy stream.
 // For now, simple upload from server side (after receiving from client).
 func UploadFile(ctx context.Context, objectName string, filePath string, contentType string) (string, error) {
+	if MinioClient == nil {
+		return "", fmt.Errorf("storage service (MinIO) is currently unavailable or disabled")
+	}
+
 	// Upload the file with FPutObject
 	info, err := MinioClient.FPutObject(ctx, BucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
