@@ -7,70 +7,82 @@ import Editor from '@/components/Editor';
 
 export default function EditPost() {
   const params = useParams();
-  // params.id will be available here
   const id = params?.id as string;
-  const [title, setTitle] = useState('');
+  const router = useRouter();
+
+  const [activeTab, setActiveTab] = useState<'vi' | 'ja'>('vi');
+
+  // Vietnamese (Default)
+  const [viTitle, setViTitle] = useState('');
+  const [viDescription, setViDescription] = useState('');
+  const [viContent, setViContent] = useState('');
+
+  // Japanese (Optional translation)
+  const [jaTitle, setJaTitle] = useState('');
+  const [jaDescription, setJaDescription] = useState('');
+  const [jaContent, setJaContent] = useState('');
+
+  // Default priority language
+  const [defaultLocale, setDefaultLocale] = useState<'vi' | 'ja'>('vi');
+
   const [slug, setSlug] = useState('');
-  const [content, setContent] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-     const fetchPost = async () => {
-         try {
-             // Fetch using the new admin endpoint
-             if (!id) return;
-             const res = await api.get(`/admin/posts/${id}`);
-             setTitle(res.data.title);
-             setSlug(res.data.slug);
-             setContent(res.data.content);
-             setCoverImage(res.data.cover_image);
-             setIsPublished(res.data.is_published);
-             // Ensure category_ids exists (backend provided virtual field)
-             setSelectedCategories(res.data.category_ids || []);
-             setLoading(false);
-         } catch (err) {
-             console.error(err);
-             alert("Failed to load post");
-             router.push('/admin/dashboard');
-         }
-     };
-     fetchPost();
+    const fetchPost = async () => {
+      try {
+        if (!id) return;
+        const res = await api.get(`/admin/posts/${id}`);
+        setViTitle(res.data.title || '');
+        setViDescription(res.data.description || '');
+        setViContent(res.data.content || '');
+        setSlug(res.data.slug || '');
+        setCoverImage(res.data.cover_image || '');
+        setIsPublished(res.data.is_published || false);
+        setSelectedCategories(res.data.category_ids || []);
+        setDefaultLocale(res.data.default_locale || 'vi');
+
+        // Load translations if available
+        if (res.data.translations && Array.isArray(res.data.translations)) {
+          const ja = res.data.translations.find((t: any) => t.locale === 'ja');
+          if (ja) {
+            setJaTitle(ja.title || '');
+            setJaDescription(ja.description || '');
+            setJaContent(ja.content || '');
+          }
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load post");
+        router.push('/admin/dashboard');
+      }
+    };
+    fetchPost();
   }, [id, router]);
 
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-        try {
-            const res = await api.get('/categories');
-            setCategories(res.data);
-        } catch (err) {
-            console.error("Failed to fetch categories");
-        }
+      try {
+        const res = await api.get('/categories');
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Failed to fetch categories");
+      }
     };
     fetchCategories();
   }, []);
 
-  // Sync selected categories when post loads
-  useEffect(() => {
-      // Logic handled in fetchPost is simpler if we do it there, but here works too if we had the data.
-      // Actually let's just modify fetchPost to populate selectedCategories
-  }, []);
-  
-  // Actually, modify the fetchPost to set selectedCategories
-  // I will replace fetchPost logic block
-
-
   const toggleCategory = (id: number) => {
-      setSelectedCategories(prev => 
-        prev.includes(id) 
-            ? prev.filter(c => c !== id)
-            : [...prev, id]
-      );
+    setSelectedCategories((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,28 +92,51 @@ export default function EditPost() {
     const formData = new FormData();
     formData.append('file', file);
 
+    setUploading(true);
     try {
-        const res = await api.post('/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setCoverImage(res.data.link);
+      const res = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setCoverImage(res.data.link);
     } catch (err) {
-        console.error("Upload failed", err);
-        alert("Failed to upload image");
+      console.error("Upload failed", err);
+      alert("Failed to upload image");
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!viTitle.trim()) {
+      setActiveTab('vi');
+      alert('Vui lòng nhập tiêu đề bài viết bằng tiếng Việt');
+      return;
+    }
+
     try {
+      const translations = [];
+      if (jaTitle.trim() || jaContent.trim()) {
+        translations.push({
+          locale: 'ja',
+          title: jaTitle.trim() || viTitle,
+          description: jaDescription.trim(),
+          content: jaContent,
+        });
+      }
+
       await api.put(`/posts/${id}`, {
-        title,
+        title: viTitle,
+        description: viDescription,
         slug,
-        content,
+        content: viContent,
         cover_image: coverImage,
         category_ids: selectedCategories,
-        is_published: isPublished
+        is_published: isPublished,
+        default_locale: defaultLocale,
+        translations,
       });
+
       router.push('/admin/dashboard');
     } catch (err) {
       console.error(err);
@@ -111,8 +146,8 @@ export default function EditPost() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-slate-400 text-xs">
-        Đang tải thông tin bài viết...
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-slate-400 text-sm animate-pulse">Đang tải bài viết...</div>
       </div>
     );
   }
@@ -125,7 +160,7 @@ export default function EditPost() {
             Chỉnh Sửa Bài Viết
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Cập nhật nội dung, danh mục và trạng thái bài viết
+            Cập nhật nội dung bài viết và phiên bản ngôn ngữ
           </p>
         </div>
         <button
@@ -139,19 +174,95 @@ export default function EditPost() {
 
       <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-xl p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-6 text-xs sm:text-sm">
-          <div>
-            <label className="block text-slate-300 font-semibold mb-2">
-              Tiêu đề bài viết <span className="text-rose-400">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none"
-              required
-            />
+          {/* Multilingual Tabs */}
+          <div className="flex items-center space-x-2 border-b border-slate-800 pb-3">
+            <button
+              type="button"
+              onClick={() => setActiveTab('vi')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
+                activeTab === 'vi'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <span>🇻🇳</span>
+              <span>Tiếng Việt (Mặc định)</span>
+              {viTitle && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('ja')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
+                activeTab === 'ja'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <span>🇯🇵</span>
+              <span>Tiếng Nhật (日本語 - Tùy chọn)</span>
+              {jaTitle && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+            </button>
           </div>
 
+          {/* Vietnamese Fields */}
+          <div className={activeTab === 'vi' ? 'space-y-5' : 'hidden'}>
+            <div>
+              <label className="block text-slate-300 font-semibold mb-2">
+                Tiêu đề bài viết (Tiếng Việt) <span className="text-rose-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={viTitle}
+                onChange={(e) => setViTitle(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none"
+                placeholder="Nhập tiêu đề tiếng Việt..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-semibold mb-2">
+                Mô tả tóm tắt (SEO Meta Description)
+              </label>
+              <textarea
+                value={viDescription}
+                onChange={(e) => setViDescription(e.target.value)}
+                rows={2}
+                className="w-full px-4 py-2 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none resize-none"
+                placeholder="Tóm tắt ngắn 150-160 ký tự cho kết quả tìm kiếm..."
+              />
+            </div>
+          </div>
+
+          {/* Japanese Fields */}
+          <div className={activeTab === 'ja' ? 'space-y-5' : 'hidden'}>
+            <div>
+              <label className="block text-slate-300 font-semibold mb-2">
+                Tiêu đề bài viết (日本語 - Japanese Title)
+              </label>
+              <input
+                type="text"
+                value={jaTitle}
+                onChange={(e) => setJaTitle(e.target.value)}
+                className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none"
+                placeholder="日本語のタイトルを入力してください..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-semibold mb-2">
+                Mô tả tóm tắt tiếng Nhật (日本語の概要)
+              </label>
+              <textarea
+                value={jaDescription}
+                onChange={(e) => setJaDescription(e.target.value)}
+                rows={2}
+                className="w-full px-4 py-2 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-100 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none resize-none"
+                placeholder="日本語の記事概要..."
+              />
+            </div>
+          </div>
+
+          {/* Common metadata: Slug, Cover Image, Categories */}
           <div>
             <label className="block text-slate-300 font-semibold mb-2">Đường dẫn (Slug)</label>
             <input
@@ -159,6 +270,7 @@ export default function EditPost() {
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               className="w-full px-4 py-2.5 bg-slate-850 border border-slate-700/80 rounded-xl text-slate-400 font-mono focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 focus:outline-none"
+              placeholder="slug-bai-viet"
               required
             />
           </div>
@@ -177,6 +289,7 @@ export default function EditPost() {
                   file:bg-blue-600/20 file:text-blue-400
                   hover:file:bg-blue-600/30 file:cursor-pointer"
               />
+              {uploading && <span className="text-xs text-blue-400 shrink-0">Đang tải ảnh...</span>}
             </div>
             {coverImage && (
               <div className="mt-3">
@@ -209,10 +322,81 @@ export default function EditPost() {
             </div>
           </div>
 
+          {/* Priority Language Selector */}
+          <div className="p-4 bg-slate-850/60 rounded-xl border border-slate-700/80 space-y-3">
+            <div>
+              <label className="block text-slate-200 font-semibold text-xs sm:text-sm">
+                Ngôn ngữ ưu tiên hiển thị khi người dùng truy cập bài viết
+              </label>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Quyết định phiên bản ngôn ngữ nào sẽ xuất hiện đầu tiên khi độc giả nhấp vào xem bài viết
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label
+                className={`flex items-center space-x-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                  defaultLocale === 'vi'
+                    ? 'bg-blue-600/15 border-blue-500 text-white shadow-sm ring-1 ring-blue-500/50'
+                    : 'bg-slate-900/60 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="default_locale"
+                  value="vi"
+                  checked={defaultLocale === 'vi'}
+                  onChange={() => setDefaultLocale('vi')}
+                  className="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 focus:ring-blue-500"
+                />
+                <div>
+                  <div className="font-semibold text-xs sm:text-sm flex items-center space-x-1.5">
+                    <span>🇻🇳</span>
+                    <span>Ưu tiên Tiếng Việt (Mặc định)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Độc giả vào link sẽ xem bản Tiếng Việt trước
+                  </p>
+                </div>
+              </label>
+
+              <label
+                className={`flex items-center space-x-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                  defaultLocale === 'ja'
+                    ? 'bg-blue-600/15 border-blue-500 text-white shadow-sm ring-1 ring-blue-500/50'
+                    : 'bg-slate-900/60 border-slate-700/80 text-slate-300 hover:bg-slate-800'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="default_locale"
+                  value="ja"
+                  checked={defaultLocale === 'ja'}
+                  onChange={() => setDefaultLocale('ja')}
+                  className="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 focus:ring-blue-500"
+                />
+                <div>
+                  <div className="font-semibold text-xs sm:text-sm flex items-center space-x-1.5">
+                    <span>🇯🇵</span>
+                    <span>Ưu tiên Tiếng Nhật (日本語)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Độc giả vào link sẽ xem ngay bản Tiếng Nhật
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Editors for each language */}
           <div>
-            <label className="block text-slate-300 font-semibold mb-2">Nội dung bài viết</label>
-            <div className="bg-white rounded-xl overflow-hidden border border-slate-700/80">
-              <Editor model={content} onModelChange={setContent} />
+            <label className="block text-slate-300 font-semibold mb-2">
+              Nội dung bài viết ({activeTab === 'vi' ? '🇻🇳 Tiếng Việt' : '🇯🇵 日本語'})
+            </label>
+            <div className={`bg-white rounded-xl overflow-hidden border border-slate-700/80 ${activeTab === 'vi' ? 'block' : 'hidden'}`}>
+              <Editor model={viContent} onModelChange={setViContent} />
+            </div>
+            <div className={`bg-white rounded-xl overflow-hidden border border-slate-700/80 ${activeTab === 'ja' ? 'block' : 'hidden'}`}>
+              <Editor model={jaContent} onModelChange={setJaContent} />
             </div>
           </div>
 
@@ -225,7 +409,7 @@ export default function EditPost() {
               className="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500 cursor-pointer"
             />
             <label htmlFor="publish" className="text-slate-200 select-none cursor-pointer font-medium">
-              Đang xuất bản công khai (Bỏ chọn nếu muốn chuyển về Bản nháp)
+              Đang xuất bản công khai (Bỏ chọn nếu muốn chuyển thành bản nháp)
             </label>
           </div>
 

@@ -43,6 +43,8 @@ interface Post {
   created_at: string;
   updated_at: string;
   categories?: Category[];
+  available_locales?: string[];
+  translations?: any[];
 }
 
 interface AdminStats {
@@ -774,10 +776,22 @@ export default function AdminDashboard() {
                         key={post.id}
                         className="hover:bg-slate-850/50 transition-colors group"
                       >
-                        {/* Title & Slug */}
+                        {/* Title & Slug & Languages */}
                         <td className="px-6 py-4 max-w-xs sm:max-w-md">
-                          <div className="font-semibold text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-2">
-                            {post.title}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-slate-100 group-hover:text-blue-400 transition-colors line-clamp-2">
+                              {post.title}
+                            </span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-[9px] bg-slate-800 text-blue-400 px-1.5 py-0.5 rounded font-bold border border-blue-500/30" title="Bản tiếng Việt">
+                                🇻🇳 VI
+                              </span>
+                              {post.available_locales?.includes('ja') && (
+                                <span className="text-[9px] bg-rose-950/40 text-rose-400 px-1.5 py-0.5 rounded font-bold border border-rose-500/30" title="Đã có bản dịch tiếng Nhật">
+                                  🇯🇵 JA
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <div className="text-[11px] text-slate-500 font-mono mt-0.5 truncate">
                             /{post.slug}
