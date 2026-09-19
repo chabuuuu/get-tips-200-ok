@@ -65,7 +65,31 @@ body {
 .prose h1 { font-size: 2.25em; }
 .prose h2 { font-size: 1.75em; border-bottom: 1px solid #333; padding-bottom: 0.3em; }
 .prose h3 { font-size: 1.5em; }
-.prose strong { color: #fff; font-weight: 700; }
+.prose strong { font-weight: 700; color: inherit; }
+.dark .prose strong { color: #fff; }
 .prose a { color: #60a5fa; text-decoration: none; }
 .prose a:hover { text-decoration: underline; }
+
+/* Froala Editor formatting fixes */
+.fr-box,
+.fr-wrapper,
+.fr-element {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+.fr-element.fr-view {
+  min-height: 500px !important;
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+  padding: 24px !important;
+}
+
+.fr-element strong,
+.fr-element b,
+.fr-view strong,
+.fr-view b {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
 
