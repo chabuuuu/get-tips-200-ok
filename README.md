@@ -1,4 +1,4 @@
-# GET TIPS 200 OK - Blog Project
+# GET TIPS 200 OK - Blog Project 1.0
 
 This repository contains the source code for the "GET TIPS 200 OK" blog. The architecture splits into a backend built with Go (Fiber) and a frontend built with React (Next.js).
 
