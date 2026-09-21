@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/haphuthinh/get-tips-200-ok-backend/database"
 	"github.com/haphuthinh/get-tips-200-ok-backend/handlers"
 	"github.com/haphuthinh/get-tips-200-ok-backend/services"
@@ -26,9 +27,12 @@ func main() {
 	services.InitMinio()
 
 	// Initialize Fiber app
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 50 * 1024 * 1024, // 50MB limit for image uploads
+	})
 
 	// Middleware
+	app.Use(recover.New())
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*", // Adjust this for production security

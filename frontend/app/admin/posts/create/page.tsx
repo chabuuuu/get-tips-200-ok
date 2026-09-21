@@ -66,10 +66,8 @@ export default function CreatePost() {
 
     setUploading(true);
     try {
-      const res = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setCoverImage(res.data.link);
+      const res = await api.post('/upload', formData);
+      setCoverImage(res.data.link || res.data.url);
     } catch (err) {
       console.error("Upload failed", err);
       alert("Failed to upload image");

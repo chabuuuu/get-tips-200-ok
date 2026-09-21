@@ -41,13 +41,24 @@ const Editor: React.FC<EditorProps> = ({ model, onModelChange }) => {
         toolbarStickyOffset: 64,
         imageUploadURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/upload`,
         imageUploadMethod: 'POST',
+        imageUploadParam: 'file',
+        imageMaxSize: 50 * 1024 * 1024,
+        imageAllowedTypes: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
         requestHeaders: {
-             Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: typeof window !== 'undefined' && localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
         },
         events: {
-            'image.beforeUpload': function (images: any) {
-                // If needed to add custom headers dynamically
+          'image.beforeUpload': function (this: any, _images: any) {
+            const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+            if (token) {
+              this.opts.requestHeaders = {
+                Authorization: `Bearer ${token}`
+              };
             }
+          },
+          'image.error': function (error: any, response: any) {
+            console.error('Froala image upload error:', error, response);
+          }
         }
       }}
     />
