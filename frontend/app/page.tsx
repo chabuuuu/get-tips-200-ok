@@ -8,24 +8,32 @@ async function getPosts(page: number = 1, category?: string, search?: string) {
   try {
     let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/posts?page=${page}&limit=9`;
     if (category) {
-        url += `&category=${category}`;
+      url += `&category=${category}`;
     }
     if (search) {
-        url += `&search=${encodeURIComponent(search)}`;
+      url += `&search=${encodeURIComponent(search)}`;
     }
-    const res = await fetch(url, { cache: 'no-store' });
+    const isDynamic = Boolean(search);
+    const res = await fetch(url, {
+      ...(isDynamic
+        ? { cache: 'no-store' }
+        : { next: { revalidate: 30, tags: ['posts-list'] } }),
+    });
     if (!res.ok) {
-        return { data: [], meta: { total: 0, page: 1, last_page: 1 } };
+      return { data: [], meta: { total: 0, page: 1, last_page: 1 } };
     }
     return res.json();
   } catch (e) {
-      return { data: [], meta: { total: 0, page: 1, last_page: 1 } };
+    return { data: [], meta: { total: 0, page: 1, last_page: 1 } };
   }
 }
 
 async function getRecommendedPosts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/posts/recommended`, { cache: 'no-store' });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/posts/recommended`,
+      { next: { revalidate: 60, tags: ['posts-recommended'] } }
+    );
     if (!res.ok) return [];
     return res.json();
   } catch (e) {

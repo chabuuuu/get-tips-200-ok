@@ -26,6 +26,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center space-x-8">
             <Link
               href="/"
+              prefetch={true}
               className="text-gray-900 dark:text-white font-bold tracking-wider text-base uppercase hover:text-blue-500 dark:hover:text-blue-400 transition whitespace-nowrap shrink-0"
             >
               GET TIPS 200 OK

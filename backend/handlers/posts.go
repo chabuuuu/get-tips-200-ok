@@ -344,35 +344,38 @@ func GetRecommendedPosts(c *fiber.Ctx) error {
 		}
 	}
 
-	// Fetch candidate published posts (excluding current post)
+	// Fast path for home page / general recommendations (no current post provided)
+	if !hasCurrentPost {
+		var topPosts []models.Post
+		if err := database.DB.Select("posts.id, posts.title, posts.slug, posts.description, posts.cover_image, posts.is_published, posts.view_count, posts.created_at, posts.updated_at, posts.user_id, posts.default_locale").
+			Preload("Translations").
+			Preload("Categories").
+			Where("posts.is_published = ?", true).
+			Order("posts.view_count desc").
+			Limit(limit).
+			Find(&topPosts).Error; err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not fetch top posts"})
+		}
+		for i := range topPosts {
+			localizePost(&topPosts[i], lang)
+		}
+		return c.JSON(topPosts)
+	}
+
+	// Fetch candidate published posts for smart content recommendation (excluding current post and excluding heavy content column)
 	var candidatePosts []models.Post
-	query := database.DB.Model(&models.Post{}).
+	query := database.DB.Select("posts.id, posts.title, posts.slug, posts.description, posts.cover_image, posts.is_published, posts.view_count, posts.created_at, posts.updated_at, posts.user_id, posts.default_locale").
 		Preload("Translations").
 		Preload("Categories").
 		Preload("User").
-		Where("posts.is_published = ?", true)
-
-	if hasCurrentPost {
-		query = query.Where("posts.id != ?", currentPost.ID)
-	}
+		Where("posts.is_published = ? AND posts.id != ?", true, currentPost.ID)
 
 	if err := query.Find(&candidatePosts).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not fetch candidate posts"})
 	}
 
-	// If no current post provided or no candidates, fallback to top viewed / recent
-	if !hasCurrentPost || len(candidatePosts) == 0 {
-		// Sort candidates by view count desc
-		sort.Slice(candidatePosts, func(i, j int) bool {
-			return candidatePosts[i].ViewCount > candidatePosts[j].ViewCount
-		})
-		if len(candidatePosts) > limit {
-			candidatePosts = candidatePosts[:limit]
-		}
-		for i := range candidatePosts {
-			localizePost(&candidatePosts[i], lang)
-		}
-		return c.JSON(candidatePosts)
+	if len(candidatePosts) == 0 {
+		return c.JSON([]models.Post{})
 	}
 
 	currentKeywords := extractKeywords(currentPost.Title + " " + currentPost.Description)
