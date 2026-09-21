@@ -39,24 +39,29 @@ func InitMinio() {
 		return
 	}
 
-	// Check or create bucket with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// Check or create bucket with generous timeout for remote SSL handshake
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	exists, errBucketExists := MinioClient.BucketExists(ctx, BucketName)
+	if errBucketExists == nil && exists {
+		log.Printf("MinIO: Bucket '%s' is ready and accessible.\n", BucketName)
+		return
+	}
 
 	err = MinioClient.MakeBucket(ctx, BucketName, minio.MakeBucketOptions{})
 	if err != nil {
-		// Check to see if we already own this bucket (which happens if it exists)
-		exists, errBucketExists := MinioClient.BucketExists(ctx, BucketName)
-		if errBucketExists == nil && exists {
-			log.Printf("We already own %s\n", BucketName)
-		} else {
-			log.Printf("Warning: MinIO connection/bucket check failed: %v. MinIO storage will be disabled, but server will continue running.\n", err)
-			MinioClient = nil
+		// Verify if it failed because bucket already exists
+		exists, errCheck := MinioClient.BucketExists(ctx, BucketName)
+		if errCheck == nil && exists {
+			log.Printf("MinIO: We already own bucket '%s'\n", BucketName)
 			return
 		}
-	} else {
-		log.Printf("Successfully created %s\n", BucketName)
+		log.Printf("Warning: MinIO connection/bucket check failed: %v. MinIO storage will be disabled, but server will continue running.\n", err)
+		MinioClient = nil
+		return
 	}
+	log.Printf("MinIO: Successfully created bucket '%s'\n", BucketName)
 }
 
 // UploadFile uploads a file to MinIO and returns the URL
