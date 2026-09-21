@@ -68,6 +68,9 @@ func setupRoutes(app *fiber.App) {
 	api.Post("/reactions", handlers.ReactToPost)
 
 	// Post Routes (Protected)
+	api.Get("/admin/stats", handlers.Protected(), handlers.GetAdminStats)
+	api.Get("/admin/posts", handlers.Protected(), handlers.GetAdminPosts)
+	api.Patch("/admin/posts/:id/toggle-publish", handlers.Protected(), handlers.TogglePublishPost)
 	api.Get("/admin/posts/:id", handlers.Protected(), handlers.GetPostByID)
 	api.Post("/posts", handlers.Protected(), handlers.CreatePost)
 	api.Put("/posts/:id", handlers.Protected(), handlers.UpdatePost)

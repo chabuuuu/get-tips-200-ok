@@ -30,10 +30,27 @@ type Post struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 
-	Comments  []Comment  `gorm:"foreignKey:PostID" json:"comments,omitempty"`
-	Reactions []Reaction `gorm:"foreignKey:PostID" json:"reactions,omitempty"`
+	DefaultLocale    string            `gorm:"size:10;default:'vi'" json:"default_locale"`
+	Translations     []PostTranslation `gorm:"foreignKey:PostID" json:"translations,omitempty"`
+	AvailableLocales []string          `gorm:"-" json:"available_locales,omitempty"`
+	ActiveLocale     string            `gorm:"-" json:"active_locale,omitempty"`
+
+	Comments   []Comment  `gorm:"foreignKey:PostID" json:"comments,omitempty"`
+	Reactions  []Reaction `gorm:"foreignKey:PostID" json:"reactions,omitempty"`
 	Categories []Category `gorm:"many2many:post_categories;" json:"categories,omitempty"`
-	CategoryIDs []uint `gorm:"-" json:"category_ids,omitempty"`
+	CategoryIDs []uint     `gorm:"-" json:"category_ids,omitempty"`
+}
+
+type PostTranslation struct {
+	ID          uint           `gorm:"primaryKey" json:"id"`
+	PostID      uint           `gorm:"not null;index" json:"post_id"`
+	Locale      string         `gorm:"size:10;not null;index" json:"locale"` // "vi", "ja", etc.
+	Title       string         `gorm:"not null" json:"title"`
+	Description string         `gorm:"type:text" json:"description"`
+	Content     string         `gorm:"type:text" json:"content"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 type Category struct {
