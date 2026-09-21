@@ -132,7 +132,30 @@ func GetPost(c *fiber.Ctx) error {
 		database.DB.Model(&models.Post{}).Where("id = ?", postID).UpdateColumn("view_count", gorm.Expr("view_count + 1"))
 	}(post.ID)
 
+	// Preserve base (Vietnamese) fields before localization
+	originalTitle := post.Title
+	originalDescription := post.Description
+	originalContent := post.Content
+
 	localizePost(&post, lang)
+
+	// Build locale_data map for instant client-side switching
+	localeData := fiber.Map{
+		"vi": fiber.Map{
+			"title":       originalTitle,
+			"description": originalDescription,
+			"content":     originalContent,
+		},
+	}
+	for _, t := range post.Translations {
+		if t.Locale != "" {
+			localeData[t.Locale] = fiber.Map{
+				"title":       t.Title,
+				"description": t.Description,
+				"content":     t.Content,
+			}
+		}
+	}
     
     // Get Reaction Counts
     var results []struct {
@@ -167,6 +190,7 @@ func GetPost(c *fiber.Ctx) error {
         "active_locale": post.ActiveLocale,
         "available_locales": post.AvailableLocales,
         "translations": post.Translations,
+        "locale_data": localeData,
     }
 
 	return c.JSON(postMap)
