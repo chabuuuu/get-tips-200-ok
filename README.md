@@ -58,3 +58,29 @@ The frontend is located in the `./frontend` directory and uses Next.js with Tail
 - Main Website: http://localhost:3000
 - Admin Login page: http://localhost:3000/admin/login
 - View the Backend API health check: http://localhost:8080/api/health
+
+---
+
+## 🛠️ Database & Migration Scripts
+
+Backend cung cấp các script tiện ích trong thư mục `./backend/cmd/`:
+
+### 1. Script Migration Domain Ảnh (`migrate_domain`)
+Khi thay đổi domain lưu trữ media/ảnh (ví dụ từ `media-resource.sonata.io.vn` sang `media.chabu.io.vn`), script này sẽ tự động quét và thay thế toàn bộ URL ảnh cũ trong cơ sở dữ liệu (bao gồm ảnh bìa `cover_image`, ảnh nhúng trong nội dung HTML `content`, `description`, các bản dịch đa ngôn ngữ `post_translations` và `categories`).
+
+**Cách sử dụng:**
+
+```bash
+cd backend
+
+# 1. Quét kiểm tra trước các bài viết bị ảnh hưởng (Dry-run, không ghi vào DB):
+go run cmd/migrate_domain/main.go --dry-run
+
+# 2. Thực thi cập nhật vào database (Mặc định chuyển media-resource.sonata.io.vn -> media.chabu.io.vn):
+go run cmd/migrate_domain/main.go
+
+# 3. Tùy biến domain cũ và domain mới theo nhu cầu bất kỳ:
+go run cmd/migrate_domain/main.go --old="domain-cu.com" --new="domain-moi.com"
+```
+
+> **Lưu ý**: Sau khi migrate trong database, hãy cập nhật biến `MINIO_ENDPOINT` trong `backend/.env` để các ảnh upload mới từ Admin sẽ tự động dùng domain mới.
