@@ -34,11 +34,7 @@ export default function LanguageSelector({
 
     // Update URL with ?lang= parameter if on a post or listing page
     const params = new URLSearchParams(searchParams?.toString() || '');
-    if (newLocale === 'vi') {
-      params.delete('lang');
-    } else {
-      params.set('lang', newLocale);
-    }
+    params.set('lang', newLocale);
     const query = params.toString() ? `?${params.toString()}` : '';
     router.push(`${pathname}${query}`);
   };
