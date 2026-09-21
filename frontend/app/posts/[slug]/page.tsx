@@ -54,13 +54,13 @@ export async function generateMetadata({
 
   const description = cleanDescription(post, 160);
   const imageUrl = resolveImageUrl(post.cover_image);
-  const postUrl = lang && lang !== 'vi' ? `/posts/${post.slug}?lang=${lang}` : `/posts/${post.slug}`;
+  const postUrl = lang ? `/posts/${post.slug}?lang=${lang}` : `/posts/${post.slug}`;
   const keywords = post.categories?.map((c: any) => c.name) || [];
 
   const availableLocales = post.available_locales || ['vi'];
   const languageAlternates: Record<string, string> = {};
   availableLocales.forEach((l: string) => {
-    languageAlternates[l] = l === 'vi' ? `/posts/${post.slug}` : `/posts/${post.slug}?lang=${l}`;
+    languageAlternates[l] = `/posts/${post.slug}?lang=${l}`;
   });
   languageAlternates['x-default'] = `/posts/${post.slug}`;
 
