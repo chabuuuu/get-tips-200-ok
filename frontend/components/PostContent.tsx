@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import SyntaxHighlighter from '@/components/SyntaxHighlighter';
+import dynamic from 'next/dynamic';
 import { useSettings } from '@/context/SettingsContext';
+
+const SyntaxHighlighter = dynamic(() => import('@/components/SyntaxHighlighter'), {
+  ssr: false,
+});
 
 interface PostContentProps {
   content: string;
