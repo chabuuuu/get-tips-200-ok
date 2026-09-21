@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -16,20 +17,22 @@ import {
   generateBreadcrumbJsonLd,
 } from '@/utils/seo';
 
-async function getPost(slug: string, lang?: string) {
+const getPost = cache(async (slug: string, lang?: string) => {
   try {
     let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'}/posts/${slug}`;
     if (lang) {
       url += `?lang=${encodeURIComponent(lang)}`;
     }
-    const res = await fetch(url, { cache: 'no-store' });
+    const res = await fetch(url, {
+      next: { revalidate: 30, tags: [`post-${slug}`] },
+    });
 
     if (!res.ok) return null;
     return res.json();
   } catch (e) {
     return null;
   }
-}
+});
 
 export async function generateMetadata({
   params,
