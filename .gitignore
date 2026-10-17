@@ -3,6 +3,7 @@ Thumbs.db
 db.json
 *.log
 node_modules/
-public/
+legacy_hexo/public/
+!frontend/public/
 .deploy*/
 _multiconfig.ymllegacy_hexo/google-api.json
