@@ -1,5 +1,12 @@
+const rawSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.URL ||
+  'https://gettips200ok.netlify.app';
+
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://gettips200ok.com'
+  rawSiteUrl.includes('gettips200ok.com')
+    ? 'https://gettips200ok.netlify.app'
+    : rawSiteUrl
 ).replace(/\/$/, '');
 
 export const SITE_NAME = 'GET TIPS 200 OK';
